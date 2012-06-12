@@ -1,3 +1,5 @@
 <div class="verily-login-form">
-	<?php echo $form; ?>
+	<form method="post" target="">
+		<?php echo $form; ?>
+	</form>
 </div>
