@@ -67,9 +67,10 @@ class Controller extends \Core\Controller
 		
 	}
 
-	public function form( \Core\Validation $validation = null )
+	public function form( $action = '', \Core\Validation $validation = null )
 	{
-		if( !$validation ) $validation = new \Core\Validation( array( ) );
+		if( !$validation )
+			$validation = new \Core\Validation( array( ) );
 		$this->form = new \Core\Form( $validation );
 		$this->form->dummy->input( 'hidden' );
 		$this->form->name->input( 'text' )->label( 'Name' )->wrap( 'p' );
@@ -120,7 +121,7 @@ class Controller extends \Core\Controller
 				$validation->field( 'dummy' )->required( 'That password did not match our records!' );
 			}
 		}
-		$this->form( $validation );
+		$this->form( '', $validation );
 	}
 
 	public function log_out()
