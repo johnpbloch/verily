@@ -109,6 +109,7 @@ class Verily
 	 */
 	public function log_in()
 	{
+		self::maybeSetUp();
 		$data = array(
 			'dummy' => '',
 			'name' => post( 'name', '', true ),
@@ -155,6 +156,7 @@ class Verily
 	 */
 	public function log_out()
 	{
+		self::maybeSetUp();
 		self::clear_auth_cookie();
 		return 'Successfully logged out!';
 	}
@@ -166,6 +168,7 @@ class Verily
 	 */
 	public static function current_user()
 	{
+		self::maybeSetUp();
 		return self::is_logged_in() ? self::$current_user : false;
 	}
 
@@ -176,6 +179,7 @@ class Verily
 	 */
 	public static function is_logged_in()
 	{
+		self::maybeSetUp();
 		if( !is_null( self::$logged_in ) )
 		{
 			return (bool)self::$logged_in;
@@ -225,6 +229,7 @@ class Verily
 	 */
 	public static function hash_password( $password )
 	{
+		self::maybeSetUp();
 		return self::$service->hasher()->HashPassword( $password );
 	}
 
