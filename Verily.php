@@ -223,7 +223,7 @@ class Verily
 	 * @param string $password
 	 * @return string The hashed password 
 	 */
-	public static function hashPassword( $password )
+	public static function hash_password( $password )
 	{
 		return self::$service->hasher()->HashPassword( $password );
 	}
