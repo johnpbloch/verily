@@ -182,7 +182,7 @@ do
 	echo colorize( 'Validation class to use', 'cyan', true ) . ' [\\Core\\Validation]: ';
 	$validation = trim( fgets( STDIN ) );
 	if( empty( $validation ) )
-		$validation = '\Core\Form';
+		$validation = '\Core\Validation';
 }
 while( !safeClassExists( $validation ) || ( $validation !== '\Core\Validation' && !in_array( 'Core\Validation', class_parents( $validation ) ) ) );
 $config['validation_class'] = $validation;
