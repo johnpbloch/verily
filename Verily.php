@@ -145,7 +145,7 @@ class Verily
 				$validation->field( 'dummy' )->required( 'That password did not match our records!' );
 			}
 		}
-		return self::form( '', $validation );
+		return self::form( $validation );
 	}
 
 	/**
