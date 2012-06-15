@@ -2,11 +2,9 @@
 
 // Installer for Verily. Run anywhere inside a MicroMVC directory tree:
 //     $ php Class/Verily/install.php
-
-
 // Make sure we're in the cli
 if( PHP_SAPI !== 'cli' )
-	die(1);
+	die( 1 );
 
 echo "\n\n";
 
@@ -139,6 +137,56 @@ if( empty( $view ) )
 	$view = 'Form';
 $config['form_view'] = $view;
 unset( $view );
+
+
+// What class should we use for the login form? Must either be \Core\Form
+// or extend it. Keep trying until we get a match.
+do
+{
+	if( isset( $form ) )
+	{
+		if( safeClassExists( $form ) )
+		{
+			echo colorize( 'Class must either be \\Core\\Form or extend it!', 'red' ) . "\n";
+		}
+		else
+		{
+			echo colorize( 'Class does not exist!', 'red' ) . "\n";
+		}
+	}
+	echo colorize( 'Form class to use for Forms', 'cyan', true ) . ' [\\Core\\Form]: ';
+	$form = trim( fgets( STDIN ) );
+	if( empty( $form ) )
+		$form = '\Core\Form';
+}
+while( !safeClassExists( $form ) || ( $form !== '\Core\Form' && !in_array( 'Core\Form', class_parents( $form ) ) ) );
+$config['form_class'] = $form;
+unset( $form );
+
+
+// What class should we use for the form validation? Must exist and either be
+// \Core\Validation or extend it. Keep trying until we get a match.
+do
+{
+	if( isset( $validation ) )
+	{
+		if( safeClassExists( $validation ) )
+		{
+			echo colorize( 'Class must either be \\Core\\Validation or extend it!', 'red' ) . "\n";
+		}
+		else
+		{
+			echo colorize( 'Class does not exist!', 'red' ) . "\n";
+		}
+	}
+	echo colorize( 'Validation class to use', 'cyan', true ) . ' [\\Core\\Validation]: ';
+	$validation = trim( fgets( STDIN ) );
+	if( empty( $validation ) )
+		$validation = '\Core\Form';
+}
+while( !safeClassExists( $validation ) || ( $validation !== '\Core\Validation' && !in_array( 'Core\Validation', class_parents( $validation ) ) ) );
+$config['validation_class'] = $validation;
+unset( $validation );
 
 
 // Get a Model to use as the users. Don't stop asking until we have a model
