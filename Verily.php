@@ -53,13 +53,10 @@ class Verily
 		self::$current_user = $user;
 		$userKey = $user->key();
 		$password_property = config( 'Verily' )->password_property;
-		$userPass = substr( (string)$user->{$password_property}, 8, 4 );
 		$expiration = time() + ( 86400 * ( $remember ? 14 : 1 ) );
-		$key = hash_hmac( 'md5', $userKey . $userPass . '|' . $expiration, config( 'Verily' )->auth_salt );
-		$hash = hash_hmac( 'md5', $userKey . $userPass . '|' . $expiration, $key );
 		$logged_in_data = array(
 			'user' => $userKey,
-			'hash' => $hash,
+			'hash' => $user->{$password_property},
 			'expiration' => $expiration,
 		);
 		\Core\Cookie::set( 'verilyAuth', $logged_in_data );
@@ -205,11 +202,7 @@ class Verily
 			return false;
 		}
 		$passwordProp = config( 'Verily' )->password_property;
-		$pass_fragment = substr( $user->{$passwordProp}, 8, 4 );
-		$blob = $user->key() . $pass_fragment . '|' . $expiration;
-		$key = hash_hmac( 'md5', $blob, config( 'Verily' )->auth_salt );
-		$testHash = hash_hmac( 'md5', $blob, $key );
-		if( $testHash === $hash )
+		if( $user->{$passwordProp} === $hash )
 		{
 			self::$logged_in = true;
 			if( !self::$current_user )
