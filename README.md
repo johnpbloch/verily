@@ -13,18 +13,33 @@ To use Verily, use the `\Verily\Verily` class. To fetch the login form:
     $form = \Verily\Verily::form();
 
 This returns a View object, which can then be used in your code.
-
+____
 To handle login form submissions:
 
     $form = \Verily\Verily::log_in();
 
 This will attempt to authenticate the user using `POST` values. If successful, the page will be redirected (determined by `$_GET['redirect_to']`) and execution stopped. If authentication fails, the login form will be returned with validation errors.
-
+____
 To log a user out:
 
     $logOutMessage = \Verily\Verily::log_out();
 
 This returns a short confirmation message that the user was logged out.
+____
+To check if there is a currently logged in user:
+
+    if( \Verily\Verily::is_logged_in() ) { /* Do something */ }
+
+____
+To retrieve the currently logged in user:
+
+    $user = \Verily\Verily::current_user();
+
+This returns an object of the user model type if there is a user logged in, and `false` if no user is logged in.
+____
+To hash a password (e.g. when creating new users):
+
+    $passwordHash = \Verily\Verily::hash_password();
 
 Installation
 --
