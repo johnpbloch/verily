@@ -137,7 +137,7 @@ echo colorize( 'Login form View:', 'cyan', true ) . ' [Class/Verily/Views/Form]:
 $view = trim( fgets( STDIN ) );
 if( empty( $view ) )
 	$view = 'Form';
-$config['default_form_view'] = $view;
+$config['form_view'] = $view;
 unset( $view );
 
 

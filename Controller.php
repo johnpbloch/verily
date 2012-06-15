@@ -79,7 +79,7 @@ class Controller extends \Core\Controller
 		$this->form->submit->input( 'submit' )->value( 'Log In' )->wrap( 'p' );
 		$redirectTo = get( 'redirect_to', DOMAIN . DS . PATH, true );
 		$this->form->redirectTo->input( 'hidden' )->value( $redirectTo );
-		$content = new View( config( 'Verily' )->default_form_view );
+		$content = new View( config( 'Verily' )->form_view );
 		$content->set( array( 'form' => $this->form ) );
 		$this->content = $content;
 	}
