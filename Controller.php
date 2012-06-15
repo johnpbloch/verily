@@ -70,8 +70,12 @@ class Controller extends \Core\Controller
 	public function form( $action = '', \Core\Validation $validation = null )
 	{
 		if( !$validation )
-			$validation = new \Core\Validation( array( ) );
-		$this->form = new \Core\Form( $validation );
+		{
+			$validationClass = config( 'Verily' )->validation_class;
+			$validation = new $validationClass( array( ) );
+		}
+		$formClass = config( 'Verily' )->form_class;
+		$this->form = new $formClass( $validation );
 		$this->form->dummy->input( 'hidden' );
 		$this->form->name->input( 'text' )->label( 'Name' )->wrap( 'p' );
 		$this->form->password->input( 'password' )->label( 'Password' )->wrap( 'p' );
@@ -91,7 +95,8 @@ class Controller extends \Core\Controller
 			'name' => post( 'name', '', true ),
 			'password' => post( 'password', '', true ),
 		);
-		$validation = new \Core\Validation( $data );
+		$validationClass = config( 'Verily' )->validation_class;
+		$validation = new $validationClass( $data );
 		$validation->field( 'name' )->required( 'The name field is required.' );
 		$validation->field( 'password' )->required( 'The password field is required.' );
 		if( !$validation->errors() )
