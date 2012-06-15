@@ -2,92 +2,76 @@
 
 namespace Verily;
 
-class Controller extends \Core\Controller
+class Verily
 {
 
 	/**
-	 * The password hasher to encrypt passwords.
-	 * @var \Verily\Lib\PasswordHasher
+	 * A service object to hold our objects
+	 * @var \Core\Service 
 	 */
-	protected $hasher;
+	protected static $service;
+
+	protected static function maybeSetUp()
+	{
+		if( !self::$service )
+		{
+			$globalConfig = config();
+			if( empty( $globalConfig->verilyIsInstalled ) )
+			{
+				$message = 'Verily is not installed! Please execute the installation script!';
+				log_message( $message );
+				throw new \Exception( $message );
+			}
+			$service = new \Core\Service();
+			$service->verily = function()
+					{
+						return new \Verily\Verily();
+					};
+			$service->hasher = function()
+					{
+						$hasherClass = config( 'Verily' )->hasher;
+						$iterations = config( 'Verily' )->hasher_iterations;
+						$use_portable = config( 'Verily' )->use_portable_hashes;
+						return new $hasherClass( $iterations, $use_portable );
+					};
+			self::$service = $service;
+		}
+	}
 
 	/**
-	 * A login form
-	 * @var \Core\Form
+	 * Creates the login form.
+	 *
+	 * @param \Core\Validation $validation
+	 * @return \Verily\View The login form
 	 */
-	protected $form;
-
-	/**
-	 * The display-able content
-	 * @var \Verily\View
-	 */
-	public $content;
-
-	public function initialize()
+	public static function form( \Core\Validation $validation = null )
 	{
-		$this->dependencies();
-	}
-
-	protected function dependencies()
-	{
-		$globalConfig = config();
-		if( empty( $globalConfig->verilyIsInstalled ) )
-		{
-			$message = 'Verily is not installed! Please follow the instructions in INSTALL.txt!';
-			log_message( $message );
-			throw new \Exception( $message );
-		}
-		$passwordHasher = config( 'Verily' )->hasher;
-		if( !in_array( 'Verily\Lib\PasswordHasher', class_implements( $passwordHasher ) ) )
-		{
-			$passwordHasher = '\Verily\Lib\PasswordHash';
-		}
-		if( !($passwordHasher instanceof \Verily\Lib\PasswordHasher) )
-		{
-			$passwordHasher = new $passwordHasher( config( 'Verily' )->hasher_iterations, config( 'Verily' )->use_portable_hashes );
-		}
-		$this->hasher = $passwordHasher;
-		if( !class_exists( config( 'Verily' )->user_model ) || !in_array( 'Core\ORM', class_parents( config( 'Verily' )->user_model ) ) )
-		{
-			$message = 'Please specify a model to use to authenticate users!';
-			log_message( $message );
-			throw new \Exception( $message );
-		}
-		$salt = config( 'Verily' )->auth_salt;
-		if( empty( $salt ) )
-		{
-			$message = 'Please set a secure salt!';
-			log_message( $message );
-			throw new \Exception( $message );
-		}
-	}
-
-	public function run()
-	{
-		
-	}
-
-	public function form( $action = '', \Core\Validation $validation = null )
-	{
+		self::maybeSetUp();
 		if( !$validation )
 		{
 			$validationClass = config( 'Verily' )->validation_class;
 			$validation = new $validationClass( array( ) );
 		}
 		$formClass = config( 'Verily' )->form_class;
-		$this->form = new $formClass( $validation );
-		$this->form->dummy->input( 'hidden' );
-		$this->form->name->input( 'text' )->label( 'Name' )->wrap( 'p' );
-		$this->form->password->input( 'password' )->label( 'Password' )->wrap( 'p' );
-		$this->form->rememberMe->input( 'checkbox' )->value( '1' )->label( 'Remember Me' );
-		$this->form->submit->input( 'submit' )->value( 'Log In' )->wrap( 'p' );
+		$form = new $formClass( $validation );
+		$form->dummy->input( 'hidden' );
+		$form->name->input( 'text' )->label( 'Name' )->wrap( 'p' );
+		$form->password->input( 'password' )->label( 'Password' )->wrap( 'p' );
+		$form->rememberMe->input( 'checkbox' )->value( '1' )->label( 'Remember Me' );
+		$form->submit->input( 'submit' )->value( 'Log In' )->wrap( 'p' );
 		$redirectTo = get( 'redirect_to', DOMAIN . DS . PATH, true );
-		$this->form->redirectTo->input( 'hidden' )->value( $redirectTo );
+		$form->redirectTo->input( 'hidden' )->value( $redirectTo );
 		$content = new View( config( 'Verily' )->form_view );
-		$content->set( array( 'form' => $this->form ) );
-		$this->content = $content;
+		$content->set( array( 'form' => $form ) );
+		return $content;
 	}
 
+	/**
+	 * Attempt to log the user in using post values. If successful, page is redirected
+	 * and execution halted. Otherwise, a login form with validation messages is returned.
+	 * 
+	 * @return \Verily\View 
+	 */
 	public function log_in()
 	{
 		$data = array(
@@ -117,7 +101,7 @@ class Controller extends \Core\Controller
 			{
 				$user->load();
 				$stored_hash = $user->{$passwordField};
-				if( $this->hasher->CheckPassword( $data['password'], $stored_hash ) )
+				if( self::$service->hasher()->CheckPassword( $data['password'], $stored_hash ) )
 				{
 					\Verily\Lib\User::set_auth_cookie( $user, post( 'rememberMe', false ) );
 					redirect( post( 'redirectTo', DOMAIN, true ) );
@@ -126,13 +110,18 @@ class Controller extends \Core\Controller
 				$validation->field( 'dummy' )->required( 'That password did not match our records!' );
 			}
 		}
-		$this->form( '', $validation );
+		return self::form( '', $validation );
 	}
 
+	/**
+	 * Log the user out.
+	 *
+	 * @return string
+	 */
 	public function log_out()
 	{
 		\Verily\Lib\User::clear_auth_cookie();
-		$this->content = 'Successfully logged out!';
+		return 'Successfully logged out!';
 	}
 
 }
