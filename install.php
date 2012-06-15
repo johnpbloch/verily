@@ -278,7 +278,7 @@ unset( $config, $installationValues, $key, $value, $q, $verilyConfig );
 echo "Registering Verily installation in global config...\n";
 
 $mainConfigFile = file_get_contents( SP . 'Config/Config.php' );
-$mainConfigFile = preg_replace( '@\?>\s*$@', '', $mainConfigFile );
+$mainConfigFile = preg_replace( '@(\?>)?\s*$@', '', $mainConfigFile ) . "\n";
 $mainConfigFile .= "\n";
 $mainConfigFile .= '$config[\'verilyIsInstalled\'] = true;';
 $mainConfigFile .= "\n";
@@ -286,6 +286,20 @@ $mainConfigFile .= "\n";
 $cfgFile = fopen( SP . 'Config/Config.php', 'w' );
 fwrite( $cfgFile, $mainConfigFile );
 fclose( $cfgFile );
+
+
+// Register the route for verily
+echo "Registering the Verily route...\n";
+
+$routeFile = file_get_contents( SP . 'Config/Route.php' );
+$routeFile = preg_replace( '@(\?>)?\s*$@', '', $routeFile ) . "\n";
+$routeFile .= "\n";
+$routeFile .= '$config[\'routes\'][\'verily\'] = \'\\Verily\\Controller\';';
+$routeFile .= "\n";
+
+$rteFile = fopen( SP . 'Config/Route.php', 'w' );
+fwrite( $rteFile, $routeFile );
+fclose( $rteFile );
 
 echo "All done!\n\n";
 exit( 0 );
