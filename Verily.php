@@ -91,7 +91,8 @@ class Verily
 		$form->password->input( 'password' )->label( 'Password' )->wrap( 'p' );
 		$form->rememberMe->input( 'checkbox' )->value( '1' )->label( 'Remember Me' );
 		$form->submit->input( 'submit' )->value( 'Log In' )->wrap( 'p' );
-		$redirectTo = get( 'redirect_to', DOMAIN . DS . PATH, true );
+		$redirectToDefault = empty( $_SERVER['HTTP_REFERER'] ) ? DOMAIN . PATH : $_SERVER['HTTP_REFERER'];
+		$redirectTo = get( 'redirect_to', $redirectToDefault, true );
 		$form->redirectTo->input( 'hidden' )->value( $redirectTo );
 		$content = new View( config( 'Verily' )->form_view );
 		$content->set( array( 'form' => $form ) );
