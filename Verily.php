@@ -95,6 +95,7 @@ class Verily
 		$redirectTo = get( 'redirect_to', $redirectToDefault, true );
 		$form->redirectTo->input( 'hidden' )->value( $redirectTo );
 		$content = new View( config( 'Verily' )->form_view );
+		$form = event( 'verily.login_form', $form );
 		$content->set( array( 'form' => $form ) );
 		return $content;
 	}
