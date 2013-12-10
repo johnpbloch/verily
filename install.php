@@ -115,7 +115,7 @@ unset( $use_portable );
 
 
 // What view file should we use for the login form?
-echo colorize( 'Login form View:', 'cyan', true ) . ' [Class/Verily/Views/Form]: ';
+echo colorize( 'Login form View:', 'cyan', true ) . ' [Verily/Views/Form]: ';
 $view = trim( fgets( STDIN ) );
 if( empty( $view ) )
 	$view = 'Form';
