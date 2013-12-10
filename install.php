@@ -3,6 +3,8 @@
 // Installer for Verily. Run anywhere inside a MicroMVC directory tree:
 //     $ php Class/Verily/install.php
 // Make sure we're in the cli
+use Micro\Directory;
+
 if( PHP_SAPI !== 'cli' )
 	die( 1 );
 
@@ -30,32 +32,14 @@ define( 'VPATH', SP . 'Class/Verily/' );
 
 /**
  * Check if classes exist without trying to autoload
- * 
+ *
  * This function will also load any classes that do exist so we can check their attributes too.
  * @param string $class The class to check
  * @return boolean
  */
 function safeClassExists( $class )
 {
-	if( class_exists( $class, false ) )
-		return true;
-	$fileName = '';
-	$namespace = '';
-
-	if( $lastNsPos = strripos( $class, '\\' ) )
-	{
-		$namespace = substr( $class, 0, $lastNsPos );
-		$class = substr( $class, $lastNsPos + 1 );
-		$fileName = str_replace( '\\', DS, $namespace ) . DS;
-	}
-
-	$fileName .= str_replace( '_', DS, $class ) . '.php';
-	$toReturn = file_exists( SP . 'Class/' . $fileName );
-	if( $toReturn )
-	{
-		require SP . 'Class/' . $fileName;
-	}
-	return $toReturn;
+	return class_exists( $class );
 }
 
 $config = config();
@@ -68,7 +52,7 @@ if( !empty( $config->verilyIsInstalled ) )
 }
 
 // We need to be able to write to the config directory. Bail if we can't.
-if( !\Core\Directory::usable( SP . 'Config' ) )
+if( ! Directory::usable( SP . 'Config' ) )
 {
 	echo colorize( 'The config directory is not writeable!', 'red' ) . "\n";
 	exit( 1 );
@@ -139,7 +123,7 @@ $config['form_view'] = $view;
 unset( $view );
 
 
-// What class should we use for the login form? Must either be \Core\Form
+// What class should we use for the login form? Must either be \Micro\Form
 // or extend it. Keep trying until we get a match.
 do
 {
@@ -147,57 +131,57 @@ do
 	{
 		if( safeClassExists( $form ) )
 		{
-			echo colorize( 'Class must either be \\Core\\Form or extend it!', 'red' ) . "\n";
+			echo colorize( 'Class must either be \\Micro\\Form or extend it!', 'red' ) . "\n";
 		}
 		else
 		{
 			echo colorize( 'Class does not exist!', 'red' ) . "\n";
 		}
 	}
-	echo colorize( 'Form class to use for Forms', 'cyan', true ) . ' [\\Core\\Form]: ';
+	echo colorize( 'Form class to use for Forms', 'cyan', true ) . ' [\\Micro\\Form]: ';
 	$form = trim( fgets( STDIN ) );
 	if( empty( $form ) )
-		$form = '\Core\Form';
+		$form = '\Micro\Form';
 }
-while( !safeClassExists( $form ) || ( $form !== '\Core\Form' && !in_array( 'Core\Form', class_parents( $form ) ) ) );
+while( !safeClassExists( $form ) || ( $form !== '\Micro\Form' && !in_array( 'Micro\Form', class_parents( $form ) ) ) );
 $config['form_class'] = $form;
 unset( $form );
 
 
 // What class should we use for the form validation? Must exist and either be
-// \Core\Validation or extend it. Keep trying until we get a match.
+// \Micro\Validation or extend it. Keep trying until we get a match.
 do
 {
 	if( isset( $validation ) )
 	{
 		if( safeClassExists( $validation ) )
 		{
-			echo colorize( 'Class must either be \\Core\\Validation or extend it!', 'red' ) . "\n";
+			echo colorize( 'Class must either be \\Micro\\Validation or extend it!', 'red' ) . "\n";
 		}
 		else
 		{
 			echo colorize( 'Class does not exist!', 'red' ) . "\n";
 		}
 	}
-	echo colorize( 'Validation class to use', 'cyan', true ) . ' [\\Core\\Validation]: ';
+	echo colorize( 'Validation class to use', 'cyan', true ) . ' [\\Micro\\Validation]: ';
 	$validation = trim( fgets( STDIN ) );
 	if( empty( $validation ) )
-		$validation = '\Core\Validation';
+		$validation = '\Micro\Validation';
 }
-while( !safeClassExists( $validation ) || ( $validation !== '\Core\Validation' && !in_array( 'Core\Validation', class_parents( $validation ) ) ) );
+while( !safeClassExists( $validation ) || ( $validation !== '\Micro\Validation' && !in_array( 'Micro\Validation', class_parents( $validation ) ) ) );
 $config['validation_class'] = $validation;
 unset( $validation );
 
 
 // Get a Model to use as the users. Don't stop asking until we have a model
-// that exists and extends \Core\ORM.
+// that exists and extends \Micro\ORM.
 do
 {
 	if( isset( $userModel ) )
 	{
 		if( safeClassExists( $userModel ) )
 		{
-			echo colorize( 'That class does not exted \\Core\\ORM!', 'red', true ) . "\n";
+			echo colorize( 'That class does not extend \\Micro\\ORM!', 'red', true ) . "\n";
 		}
 		else
 		{
@@ -208,10 +192,10 @@ do
 	$userModel = trim( fgets( STDIN ) );
 	if( !empty( $userModel ) && $userModel[0] != '\\' )
 	{
-		$userModel = "\Model\\$userModel";
+		$userModel = "\\Model\\$userModel";
 	}
 }
-while( !safeClassExists( $userModel ) || !in_array( 'Core\ORM', class_parents( $userModel ) ) );
+while( !safeClassExists( $userModel ) || !in_array( 'Micro\ORM', class_parents( $userModel ) ) );
 $config['user_model'] = $userModel;
 unset( $userModel );
 
