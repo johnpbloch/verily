@@ -1,0 +1,11 @@
+{
+	"name"             : "johnpbloch/verily",
+	"description"      : "An authentication module for MicroMVC",
+	"minimum-stability": "dev",
+	"authors"          : [
+		{
+			"name" : "John P. Bloch",
+			"email": "me@johnpbloch.com"
+		}
+	]
+}
