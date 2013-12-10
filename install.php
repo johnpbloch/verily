@@ -28,7 +28,7 @@ do
 }
 while( !defined( 'SP' ) );
 
-define( 'VPATH', __DIR__ );
+define( 'VPATH', __DIR__ . '/' );
 
 /**
  * Check if classes exist without trying to autoload
