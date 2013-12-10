@@ -20,5 +20,9 @@
 	],
 	"require-dev"      : {
 		"micromvc/micromvc": "dev-master"
-	}
+	},
+	"autoload"         : {
+		"classmap": ["./Verily.php", "./View.php", "./Lib/", "./Views/"]
+	},
+	"bin"              : ["install.php"]
 }
