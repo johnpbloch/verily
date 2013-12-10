@@ -2,12 +2,18 @@
 
 namespace Verily;
 
+use Exception;
+use Micro\Cookie;
+use Micro\ORM;
+use Micro\Service;
+use Micro\Validation;
+
 class Verily
 {
 
 	/**
 	 * A service object to hold our objects
-	 * @var \Core\Service 
+	 * @var Service
 	 */
 	protected static $service;
 
@@ -17,7 +23,7 @@ class Verily
 	protected static $logged_in = null;
 
 	/**
-	 * @var \Core\ORM
+	 * @var ORM
 	 */
 	protected static $current_user;
 
@@ -30,12 +36,12 @@ class Verily
 			{
 				$message = 'Verily is not installed! Please execute the installation script!';
 				log_message( $message );
-				throw new \Exception( $message );
+				throw new Exception( $message );
 			}
-			$service = new \Core\Service();
+			$service = new Service();
 			$service->verily = function()
 					{
-						return new \Verily\Verily();
+						return new Verily();
 					};
 			$service->hasher = function()
 					{
@@ -48,7 +54,7 @@ class Verily
 		}
 	}
 
-	protected static function set_auth_cookie( \Core\ORM $user, $remember = false )
+	protected static function set_auth_cookie( ORM $user, $remember = false )
 	{
 		self::$current_user = $user;
 		$userKey = $user->key();
@@ -59,7 +65,7 @@ class Verily
 			'hash' => $user->{$password_property},
 			'expiration' => $expiration,
 		);
-		\Core\Cookie::set( 'verilyAuth', $logged_in_data );
+		Cookie::set( 'verilyAuth', $logged_in_data );
 		self::$logged_in = true;
 	}
 
@@ -67,16 +73,16 @@ class Verily
 	{
 		self::$current_user = null;
 		self::$logged_in = false;
-		\Core\Cookie::set( 'verilyAuth', false );
+		Cookie::set( 'verilyAuth', false );
 	}
 
 	/**
 	 * Creates the login form.
 	 *
-	 * @param \Core\Validation $validation
-	 * @return \Verily\View The login form
+	 * @param Validation $validation
+	 * @return View The login form
 	 */
-	public static function form( \Core\Validation $validation = null )
+	public static function form( Validation $validation = null )
 	{
 		self::maybeSetUp();
 		if( !$validation )
@@ -103,8 +109,8 @@ class Verily
 	/**
 	 * Attempt to log the user in using post values. If successful, page is redirected
 	 * and execution halted. Otherwise, a login form with validation messages is returned.
-	 * 
-	 * @return \Verily\View 
+	 *
+	 * @return View
 	 */
 	public function log_in()
 	{
@@ -115,11 +121,13 @@ class Verily
 			'password' => post( 'password', '', true ),
 		);
 		$validationClass = config( 'Verily' )->validation_class;
+		/** @var Validation $validation */
 		$validation = new $validationClass( $data );
 		$validation->field( 'name' )->required( 'The name field is required.' );
 		$validation->field( 'password' )->required( 'The password field is required.' );
 		if( !$validation->errors() )
 		{
+			/** @var ORM $model */
 			$model = config( 'Verily' )->user_model;
 			$usernameField = config( 'Verily' )->username_property;
 			$passwordField = config( 'Verily' )->password_property;
@@ -163,7 +171,7 @@ class Verily
 	/**
 	 * Retrieve the current logged in user, if any
 	 *
-	 * @return \Core\ORM|bool The user object if logged in, false if not logged in
+	 * @return ORM|bool The user object if logged in, false if not logged in
 	 */
 	public static function current_user()
 	{
@@ -174,7 +182,7 @@ class Verily
 	/**
 	 * Check whether the user is logged in or not.
 	 *
-	 * @return boolean 
+	 * @return boolean
 	 */
 	public static function is_logged_in()
 	{
@@ -183,7 +191,7 @@ class Verily
 		{
 			return (bool)self::$logged_in;
 		}
-		$data = \Core\Cookie::get( 'verilyAuth' );
+		$data = Cookie::get( 'verilyAuth' );
 		if( !$data )
 		{
 			self::$logged_in = false;
@@ -220,7 +228,7 @@ class Verily
 	/**
 	 * Hash a password using the same method Verily will use to authenticate.
 	 * @param string $password
-	 * @return string The hashed password 
+	 * @return string The hashed password
 	 */
 	public static function hash_password( $password )
 	{
