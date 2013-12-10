@@ -44,12 +44,12 @@ To hash a password (e.g. when creating new users):
 Installation
 --
 
-To install Verily, add it as a `git submodule` from your main project and run the installation script:
+To install Verily, add it as a requirement in your `composer.json` file and run the installation script:
 
-    git submodule add https://github.com/johnpbloch/verily.git Class/Verily
-    git submodule init
-    git submodule update
-    php Class/Verily/install.php
+```
+composer require johnpbloch/verily:~0.1
+php vendor/bin/install.php
+```
 
 The installation script will prompt you for several configuration options. Most options have default values that many users will not need to change. The configuration details are:
 
@@ -67,19 +67,19 @@ Whether to use portable hashes. Using portable hashes is the default because of 
     
     form_view              Default Value: Form
 
-This is the `View` file that will be used for the display of the login form. The value should never have the `.php` extension; it should be a relative path, relative to the root directory of the MicroMVC installation, relative to `Class/Verily/Views` (as the default is), or relative to the default views folder, `Views`.
+This is the `View` file that will be used for the display of the login form. The value should never have the `.php` extension; it should be a relative path, relative to the root directory of the MicroMVC installation, relative to `Verily/Views` (as the default is), or relative to the default views folder, `Views`.
 
-    form_class             Default Value: \Core\Form
+    form_class             Default Value: \Micro\Form
 
-This is the class used to create the login form's fields. The default is to use the core forms class (`\Core\Form`), but any class that extends `\Core\Form` may be used as well.
+This is the class used to create the login form's fields. The default is to use the core forms class (`\Micro\Form`), but any class that extends `\Micro\Form` may be used as well.
 
-    validation_class       Default Value: \Core\Validation
+    validation_class       Default Value: \Micro\Validation
 
-This is the class used to validate the login form's fields. The default is to use the core validation class (`\Core\Validation`), but any class that extends `\Core\Validation` may be used as well.
+This is the class used to validate the login form's fields. The default is to use the core validation class (`\Micro\Validation`), but any class that extends `\Micro\Validation` may be used as well.
 
     user_model             No Default
 
-This is the `Model` used for authentication. There is no default, so a value must be provided. The model class must exist and it must extend `\Core\ORM`. This is necessary for Verily to be able to look up users who are trying to log in.
+This is the `Model` used for authentication. There is no default, so a value must be provided. The model class must exist and it must extend `\Micro\ORM`. This is necessary for Verily to be able to look up users who are trying to log in.
 
     username_property      Default Value: username
 
