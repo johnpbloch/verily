@@ -2,6 +2,7 @@
 	"name"             : "johnpbloch/verily",
 	"description"      : "An authentication module for MicroMVC",
 	"minimum-stability": "dev",
+	"license"          : "GPL-3.0+",
 	"authors"          : [
 		{
 			"name" : "John P. Bloch",
