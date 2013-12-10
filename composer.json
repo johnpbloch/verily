@@ -11,7 +11,14 @@
 	"repositories"     : [
 		{
 			"type": "vcs",
+			"url" : "https://github.com/Xeoncross/micromvc.git"
+		},
+		{
+			"type": "vcs",
 			"url" : "https://github.com/Xeoncross/Micro.git"
 		}
-	]
+	],
+	"require-dev"      : {
+		"micromvc/micromvc": "dev-master"
+	}
 }
