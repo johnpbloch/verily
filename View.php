@@ -2,7 +2,11 @@
 
 namespace Verily;
 
-class View extends \Core\View {
+use Exception;
+use Micro\Error;
+use Micro\View as BaseView;
+
+class View extends BaseView {
 
 	private $__view = null;
 
@@ -22,8 +26,8 @@ class View extends \Core\View {
 			extract( (array)$this );
 			require SP . $this->__view . EXT;
 			return ob_get_clean();
-		} catch( \Exception $exc ) {
-			\Core\Error::exception( $exc );
+		} catch( Exception $exc ) {
+			Error::exception( $exc );
 			return '';
 		}
 	}
